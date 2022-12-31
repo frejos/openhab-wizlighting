@@ -207,7 +207,7 @@ public class WizLightingMediatorImpl implements WizLightingMediator {
             logger.warn("Network interface did not return an IP address!");
             return "OHIPAddress";
         }
-        logger.info("IP of OpenHab device is {}.", myIpAddress);
+        logger.trace("IP of OpenHab device is {}.", myIpAddress);
         return myIpAddress;
     }
 
@@ -223,7 +223,7 @@ public class WizLightingMediatorImpl implements WizLightingMediator {
             logger.warn("MAC Address of OpenHab device is invalid.");
             return "OHMACAddress";
         }
-        logger.info("MAC Address of OpenHab device is {}.", myMacAddress);
+        logger.trace("MAC Address of OpenHab device is {}.", myMacAddress);
         return myMacAddress;
     }
 
