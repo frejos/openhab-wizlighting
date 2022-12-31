@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="wizlighting"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<!-- Color WiFi Bulb Thing Type -->
+	<thing-type id="wizColorBulb">
+		<label>WiZ Color Bulb</label>
+		<description>Supports WiZ Full Color with Tunable White Bulbs</description>
+
+		<channels>
+			<channel id="color" typeId="system.color"/>
+			<channel id="temperature" typeId="system.color-temperature"/>
+			<channel id="dimming" typeId="system.brightness"/>
+			<!-- NOTE: Keeping brightness in two places, color and brightness -->
+			<!-- NOTE: Having it in both places is necessary to allow the brighness to be changed while in color temperature mode -->
+			<channel id="state" typeId="system.power"/>
+			<!-- NOTE: Yes, state can be controlled by 3 channels -->
+			<channel id="lightMode" typeId="lightMode"/>
+			<channel id="speed" typeId="speed"/>
+			<channel id="signalstrength" typeId="system.signal-strength"/>
+			<channel id="lastUpdate" typeId="lastUpdate"/>
+		</channels>
+		<config-description-ref uri="thing-type:wiz:light"/>
+	</thing-type>
+
+	<!-- Tunable White WiFi Bulb Thing Type -->
+	<thing-type id="wizTunableBulb">
+		<label>WiZ Tunable Bulb</label>
+		<description>Supports WiZ Tunable White Bulbs</description>
+
+		<channels>
+			<channel id="temperature" typeId="system.color-temperature"/>
+			<channel id="dimming" typeId="system.brightness"/>
+			<channel id="state" typeId="system.power"/>
+			<!-- NOTE: State can also be changed via dimming channel -->
+			<channel id="lightMode" typeId="lightMode"/>
+			<channel id="speed" typeId="speed"/>
+			<channel id="signalstrength" typeId="system.signal-strength"/>
+			<channel id="lastUpdate" typeId="lastUpdate"/>
+		</channels>
+		<config-description-ref uri="thing-type:wiz:light"/>
+	</thing-type>
+
+	<!-- Single Color Dimmable WiFi Bulb Thing Type -->
+	<thing-type id="wizDimmableBulb">
+		<label>WiZ Dimmable Bulb</label>
+		<description>Supports WiZ Single Color Dimmable Bulbs</description>
+
+		<channels>
+			<channel id="dimming" typeId="system.brightness"/>
+			<channel id="state" typeId="system.power"/>
+			<!-- NOTE: State can also be changed via dimming channel -->
+			<channel id="lightMode" typeId="lightMode"/>
+			<channel id="speed" typeId="speed"/>
+			<channel id="signalstrength" typeId="system.signal-strength"/>
+			<channel id="lastUpdate" typeId="lastUpdate"/>
+		</channels>
+		<config-description-ref uri="thing-type:wiz:light"/>
+	</thing-type>
+
+	<!-- WiFi Smart Plug Thing Type -->
+	<thing-type id="wizPlug">
+		<label>WiZ Smart Plug</label>
+		<description>Supports WiZ Smart Plugs</description>
+
+		<channels>
+			<channel id="state" typeId="system.power"/>
+			<channel id="signalstrength" typeId="system.signal-strength"/>
+			<channel id="lastUpdate" typeId="lastUpdate"/>
+		</channels>
+		<config-description-ref uri="thing-type:wiz:light"/>
+	</thing-type>
+
+	<!-- Bulb Channel Types -->
+	<channel-type id="lightMode">
+		<item-type>String</item-type>
+		<label>Light Mode</label>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+		<state pattern="String" readOnly="false">
+			<options>
+				<option value="1">Ocean</option>
+				<option value="2">Romance</option>
+				<option value="3">Sunset</option>
+				<option value="4">Party</option>
+				<option value="5">Fireplace</option>
+				<option value="6">Cozy White</option>
+				<option value="7">Forest</option>
+				<option value="8">Pastel Colors</option>
+				<option value="9">Wakeup</option>
+				<option value="10">Bed Time</option>
+				<option value="11">Warm White</option>
+				<option value="12">Daylight</option>
+				<option value="13">Cool White</option>
+				<option value="14">Night Light</option>
+				<option value="15">Focus</option>
+				<option value="16">Relax</option>
+				<option value="17">True Colors</option>
+				<option value="18">TV Time</option>
+				<option value="19">Plant Growth</option>
+				<option value="20">Spring</option>
+				<option value="21">Summer</option>
+				<option value="22">Fall</option>
+				<option value="23">Deep Dive</option>
+				<option value="24">Jungle</option>
+				<option value="25">Mojito</option>
+				<option value="26">Club</option>
+				<option value="27">Christmas</option>
+				<option value="28">Halloween</option>
+				<option value="29">Candlelight</option>
+				<option value="30">Golden White</option>
+				<option value="31">Pulse</option>
+				<option value="32">Steampunk</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="speed">
+		<item-type>Dimmer</item-type>
+		<label>Dynamic Light Mode Speed</label>
+		<description>Speed of color/intensity changes in dynamic light modes</description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="lastUpdate">
+		<item-type>DateTime</item-type>
+		<label>Last Update</label>
+		<description>Timestamp of last status update</description>
+		<state readOnly="true"></state>
+	</channel-type>
+
+</thing:thing-descriptions>
