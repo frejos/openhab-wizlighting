@@ -9,9 +9,9 @@
     <artifactId>org.openhab.addons.reactor.bundles</artifactId>
     <version>3.3.0</version>
 
-    <!-- Necessary for build outside of parent path, must clone and build 
-    main openhab-addons project and ensure referernce here is correct for 
-    build to work correctly. -->
+    <!-- Necessary for build outside of parent path, must clone and build
+      main openhab-addons project and ensure referernce here is correct for
+      build to work correctly. -->
     <relativePath>../openhab-addons/bundles</relativePath>
   </parent>
 
