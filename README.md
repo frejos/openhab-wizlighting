@@ -1,44 +1,30 @@
-# WiZ Lighting Binding
+![logo](https://www.wizconnected.com/content/dam/wiz/master/logo-wiz-black-navigation.svg)
+This binding integrates the [WiZ Connected](https://www.wizconnected.com/en-US/) smart devices. These inexpensive devices, typically smart bulbs, are available online and in most Home Depot stores. They come in a variety of bulb shapes and sizes with options of full color with tunable white, tunable white, and dimmable white. This binding has been tested with various bulbs and switchable plugs. They are sold under the Philips brand name. (Wiz is owned by Signify (formerly Philips Lighting).) *Note* that while both are sold by Philips, WiZ bulbs are *not* part of the Hue ecosystem.
 
-This binding integrates the [WiZ Connected](https://www.wizconnected.com/en-US/) smart devices. 
-These inexpensive devices, typically smart bulbs, are available online and in most Home Depot stores.
-They come in a variety of bulb shapes and sizes with options of full color with tunable white, tunable white, and dimmable white. This binding 
-has been tested with various bulbs and switchable plugs. They are sold under the Philips brand name.  (Wiz is owned by Signify (formerly 
-Philips Lighting).) *Note* that while both are sold by Philips, WiZ bulbs are _not_ part of the Hue ecosystem.
-
-This binding operates completely within the local network - the discovery, control, and status monitoring is entirely over UDP in the local network.
-The binding never attempts to contact the WiZ servers in any way but does not stop them from doing so independently.
-It should not interfer in any way with control of the bulbs via the WiZ app or any other service integrated with the WiZ app (ie: Alexa, IFTTT, SmartThings).
-Any changes made to the bulb state outside of openHAB should be detected by the binding and vice-versa.
-Before using the binding, the bulbs must be set up using the WiZ iOS or Android app.
-Local control must also be enabled with-in the WiZ app in the app settings.  (This is the default.)
+This binding operates completely within the local network - the discovery, control, and status monitoring is entirely over UDP in the local network. The binding never attempts to contact the WiZ servers in any way but does not stop them from doing so independently. It should not interfer in any way with control of the bulbs via the WiZ app or any other service integrated with the WiZ app (ie: Alexa, IFTTT, SmartThings). Any changes made to the bulb state outside of openHAB should be detected by the binding and vice-versa. Before using the binding, the bulbs must be set up using the WiZ iOS or Android app. Local control must also be enabled with-in the WiZ app in the app settings. (This is the default.)
 
 ## Supported Things
+* WiZ Full Color with Tunable White Bulbs
+* WiZ Tunable White Bulbs
+* WiZ Dimmable single-color bulbs
+* Wiz Smart Plugs
 
-- WiZ Full Color with Tunable White Bulbs
-- WiZ Tunable White Bulbs
-- WiZ Dimmable single-color bulbs
-- Wiz Smart Plugs
-
-This binding was created for and tested on the full color with tunable white bulbs, but it is very likely that it will also work on most Wiz bulbs.
-
+_Note_ This binding was created for and tested on the full color with tunable white bulbs, however, users have reported success with other bulb types and plugs.
 ## Discovery
+New devices can be discovered by scanning and may also be discovered by background discovery.
+All discovered devices will default to 'Full Color' bulbs if unable to automatically detect the specific device type. You may need to create devices manually if desired.
 
-New bulbs can be discovered by scanning and may also be discovered by background discovery.
-All discovered bulbs will be assigned as 'Full Color' bulbs. Tunable and dimmable bulbs and smart plugs must be created manually.
-The devices must first have been set up using the WiZ iOS or Android app.
-
-If the binding cannot discover your device, try unplugging it, wait several seconds, and plug it back in.
+Devices must first have been set up using the WiZ iOS or Android app. If the binding cannot discover your device, try unplugging it, wait several seconds, and plug it back in.
 
 ## Binding Configuration
 
 The binding does not require any special configuration.
-You can optionally manually set the IP and MAC address of the openHAB instance; if you do not set them, the binding will attempt to detect them.
+You can optionally manually set the IP and MAC address of the openHAB instance; if you do not set them, the binding will use the system defaults.
 
 ## Thing Configuration
 
-To create or configure a bulb manually you need its IP address and MAC address.
-These can be quickly found in the ios or android app by entering the settings for bulb in question and clicking on the model name.
+To create or configure a device manually you need its IP address and MAC address.
+These can be quickly found in the ios or android app by entering the settings for device in question and clicking on the model name.
 The refresh interval may also be set; if unset it defaults to 30 seconds.
 If you desire instant updates, you may also enable "heart-beat" synchronization with the bulbs.
 Heart-beats are not used by default.
@@ -46,10 +32,9 @@ When heart-beats are enabled, the binding will continuously re-register with the
 Enabling heart-beats causes the refresh-interval to be ignored.
 If heart-beats are not enabled, the channels are only updated when polled at the set interval and thus will be slightly delayed wrt changes made to the bulb state outside of the binding (ie, via the WiZ app).
 
-**NOTE:** While the bulb's IP address is needed for initial manual configuration, this binding _does not_ require you to use a static IP for each bulb.
-After initial discovery or setup, the binding will automatically search for and re-match bulbs with changed IP addresses by MAC address once every hour.
+**NOTE:** While the bulb's IP address is needed for initial manual configuration, this binding _does not_ require you to use a static IP for each bulb. After initial discovery or setup, the binding will automatically search for and re-match bulbs with changed IP addresses by MAC address once every hour.
 
-WiFi Socket thing parameters:
+Thing parameters:
 
 | Parameter ID | Parameter Type | Mandatory | Description | Default |
 |--------------|----------------|------|------------------|-----|
@@ -80,23 +65,28 @@ The Binding supports the following channels:
 | signalstrength  | system    | Quality of the bulb's WiFi connection                 | R      |
 | lastUpdate      | Time      | The last time an an update was received from the bulb | R      |
 
-NOTE:  The dimming channel and state channels duplicate the same values from the color channel.
+## Bulb Limitations
+- The dimming channel and state channels duplicate the same values from the color channel. This is due to the way the bulbs physically work, they do not have a concept of three separate things.
+- Full-color bulbs operate in either color mode OR tunable white/color temperature mode.
+The RGB LED's are NOT used to control temperature - separate warm and cool white LED's are used. Sending a command on the color channel or the temperature channel will cause the bulb to switch the relevant mode. Sending a command on either the dimming or state channel should not cause the bulb to switch modes.
+- Some dimmable bulbs no longer dim below 10%. 
+- The binding immediately retrieves the actual state from the device after each command is acknowledged, sometimes this means your settings don't 'stick' this is because the device itself did not accept the command or setting.
+- Parameters can not be changed while the bulbs are off, sending any commands to change any settings will cause the bulbs to turn on.
+- Power on behavior is configured in the app.
+- Fade in/out times are configured in the app.
+- Sending too many commands to the bulbs too quickly can cause them to stop responding for a period of time.
 
-NOTE:  The full-color bulbs operate in either color mode OR tunable white/color temperature mode.
-The RGB LED's are NOT used to control temperature - separate warm and cool white LED's are used.
-Sending a command on the color channel or the temperature channel will cause the bulb to switch the relevant mode.
-Sending a command on either the dimming or state channel should not cause the bulb to switch modes.
-Thus, if you would like to change the brightness while maintaining the same color temperature mode, use the separate dimming channel NOT the intensity component of the color channel.
-
-NOTE:  None of the parameters can be changed while the bulb is off.
-This is a limitation of the bulbs themselves.
-Sending any commands to change the color, temperature, scene, etc will cause the bulb to turn on.
-The brightness (but not color/temperature) at power on can be set in the WiZ app.
-
-NOTE:  Sending too many commands to the bulbs too quickly can cause them to go offline.
-
-Example item linked to a channel:
+## Example item linked to a channel
 
 ```
 Color LivingRoom_Light_Color "Living Room Lamp" (gLivingroom) {channel="wizlighting:wizColorBulb:accf23343cxx:color"}
 ```
+
+
+## Changelog
+
+### Version 3.3.0.03
+- Restructured code to facilitate building with 3.3.0 base and prepared for community distribution.
+
+## History and Credit
+I am only the latest in a long line of individuals who have picked this binding up and helped maintain it. I have a large installation of these devices in my home and have recently restructured the code, ported it to newer releases of OH and fixed a few bugs, but all credit goes to those before me that did the heavy lifting. Here I am attempting to make this easier for users to access by including it in the community marketplace.
