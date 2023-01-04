@@ -87,7 +87,6 @@ Color LivingRoom_Light_Color "Living Room Lamp" (gLivingroom) {channel="wizlight
 ## Changelog
 
 ### Version 3.3.0.04
-- Removed the code that forced dimming to greater than 10% in order to allow the bulbs to dim that can dim
 - Corrected bug that prevented dimming to 0 from turning off the bulbs
 
 ### Version 3.3.0.03
