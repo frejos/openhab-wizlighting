@@ -210,7 +210,7 @@ public class WizLightingHandler extends BaseThingHandler {
 
     private void handlePercentCommand(PercentType brightness) {
         logger.trace("Setting bulb brightness.");
-        if (brightness == PercentType.ZERO) {
+        if (brightness.equals(PercentType.ZERO)) {
             logger.trace("Zero brightness requested, turning bulb off.");
             setPilotCommand(new StateRequestParam(false));
         } else {

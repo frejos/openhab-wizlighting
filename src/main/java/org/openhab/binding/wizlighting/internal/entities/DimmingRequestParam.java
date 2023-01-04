@@ -36,7 +36,7 @@ public class DimmingRequestParam extends StateRequestParam {
 
     public DimmingRequestParam(int dimming) {
         super(true);
-        this.dimming = dimming >= 10 ? dimming : 10;
+        setDimming(dimming);
     }
 
     public int getDimming() {
@@ -44,9 +44,11 @@ public class DimmingRequestParam extends StateRequestParam {
     }
 
     public void setDimming(int dimming) {
-        // Bulb can't be dimmed below 10%
-        if (dimming < 10) {
-            dimming = 10;
+        if (dimming <= 0) {
+            dimming = 0;
+        }
+        if (dimming >= 100) {
+            dimming = 100;
         }
         this.dimming = dimming;
     }
