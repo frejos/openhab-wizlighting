@@ -1,4 +1,5 @@
 ![logo](https://www.wizconnected.com/content/dam/wiz/master/logo-wiz-black-navigation.svg)
+
 This binding integrates the [WiZ Connected](https://www.wizconnected.com/en-US/) smart devices. These inexpensive devices, typically smart bulbs, are available online and in most Home Depot stores. They come in a variety of bulb shapes and sizes with options of full color with tunable white, tunable white, and dimmable white. This binding has been tested with various bulbs and switchable plugs. They are sold under the Philips brand name. (Wiz is owned by Signify (formerly Philips Lighting).) *Note* that while both are sold by Philips, WiZ bulbs are *not* part of the Hue ecosystem.
 
 This binding operates completely within the local network - the discovery, control, and status monitoring is entirely over UDP in the local network. The binding never attempts to contact the WiZ servers in any way but does not stop them from doing so independently. It should not interfer in any way with control of the bulbs via the WiZ app or any other service integrated with the WiZ app (ie: Alexa, IFTTT, SmartThings). Any changes made to the bulb state outside of openHAB should be detected by the binding and vice-versa. Before using the binding, the bulbs must be set up using the WiZ iOS or Android app. Local control must also be enabled with-in the WiZ app in the app settings. (This is the default.)
@@ -84,6 +85,10 @@ Color LivingRoom_Light_Color "Living Room Lamp" (gLivingroom) {channel="wizlight
 
 
 ## Changelog
+
+### Version 3.3.0.04
+- Removed the code that forced dimming to greater than 10% in order to allow the bulbs to dim that can dim
+- Corrected bug that prevented dimming to 0 from turning off the bulbs
 
 ### Version 3.3.0.03
 - Restructured code to facilitate building with 3.3.0 base and prepared for community distribution.
