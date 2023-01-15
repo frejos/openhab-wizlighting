@@ -66,12 +66,51 @@ The Binding supports the following channels:
 | signalstrength  | system    | Quality of the bulb's WiFi connection                 | R      |
 | lastUpdate      | Time      | The last time an an update was received from the bulb | R      |
 
+## Light Modes
+
+The Binding supports the following Light Modes
+
+| ID | Scene Name    |
+|----|---------------|
+|  1 | Ocean         |
+|  2 | Romance       |
+|  3 | Sunset        |
+|  4 | Party         |
+|  5 | Fireplace     |
+|  6 | Cozy White    |
+|  7 | Forest        |
+|  8 | Pastel Colors |
+|  9 | Wakeup        |
+| 10 | Bed Time      |
+| 11 | Warm White    |
+| 12 | Daylight      |
+| 13 | Cool White    |
+| 14 | Night Light   |
+| 15 | Focus         |
+| 16 | Relax         |
+| 17 | True Colors   |
+| 18 | TV Time       |
+| 19 | Plant Growth  |
+| 20 | Spring        |
+| 21 | Summer        |
+| 22 | Fall          |
+| 23 | Deep Dive     |
+| 24 | Jungle        |
+| 25 | Mojito        |
+| 26 | Club          |
+| 27 | Christmas     |
+| 28 | Halloween     |
+| 29 | Candlelight   |
+| 30 | Golden White  |
+| 31 | Pulse         |
+| 32 | Steampunk     |
+
 ## Bulb Limitations
 - The dimming channel and state channels duplicate the same values from the color channel. This is due to the way the bulbs physically work, they do not have a concept of three separate things.
 - Full-color bulbs operate in either color mode OR tunable white/color temperature mode.
 The RGB LED's are NOT used to control temperature - separate warm and cool white LED's are used. Sending a command on the color channel or the temperature channel will cause the bulb to switch the relevant mode. Sending a command on either the dimming or state channel should not cause the bulb to switch modes.
-- Some dimmable bulbs no longer dim below 10%. 
-- The binding immediately retrieves the actual state from the device after each command is acknowledged, sometimes this means your settings don't 'stick' this is because the device itself did not accept the command or setting.
+- Dimmable bulbs do not dim below 10%. 
+- The binding attempts to immediately retrieve the actual state from the device after each command is acknowledged, sometimes this means your settings don't 'stick' this is because the device itself did not accept the command or setting.
 - Parameters can not be changed while the bulbs are off, sending any commands to change any settings will cause the bulbs to turn on.
 - Power on behavior is configured in the app.
 - Fade in/out times are configured in the app.
@@ -85,6 +124,15 @@ Color LivingRoom_Light_Color "Living Room Lamp" (gLivingroom) {channel="wizlight
 
 
 ## Changelog
+
+### Version 3.4.0.01
+- Updated to build for 3.4.0 OH dependencies
+- Added ability to send the light mode name to the LightMode channel in addition to the light mode scene id. Most UI components handled this mapping automatically using the metadata, however, in rules it was cumbersome to have to look up the corresponding ids. You man now send the string name to the channel. Names are standardized for case and white space before matching. All of the below are valid in JavaScript rules:
+items.getItem("BulbName_LightMode").sendCommand("DayLight");
+items.getItem("BulbName_LightMode").sendCommand("Day Light");
+items.getItem("BulbName_LightMode").sendCommand("daylight");
+items.getItem("BulbName_LightMode").sendCommand(12);
+items.getItem("BulbName_LightMode").sendCommand("12");
 
 ### Version 3.3.0.04
 - Corrected bug that prevented dimming to 0 from turning off the bulbs
