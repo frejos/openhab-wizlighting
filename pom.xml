@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.openhab.addons.bundles</groupId>
     <artifactId>org.openhab.addons.reactor.bundles</artifactId>
-    <version>3.3.0</version>
+    <version>3.4.0</version>
 
     <!-- Necessary for build outside of parent path, must clone and build
       main openhab-addons project and ensure referernce here is correct for
@@ -18,7 +18,7 @@
   <artifactId>org.openhab.binding.wizlighting</artifactId>
 
   <!-- Version appended to openhab-addons version -->
-  <version>3.3.0.04</version>
+  <version>3.4.0.01</version>
 
   <name>openHAB Add-ons :: Bundles :: WiZ Lighting Binding</name>
 

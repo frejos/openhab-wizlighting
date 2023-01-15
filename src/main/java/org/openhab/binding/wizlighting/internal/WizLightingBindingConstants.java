@@ -33,7 +33,7 @@ public class WizLightingBindingConstants {
      * The binding id.
      */
     public static final String BINDING_ID = "wizlighting";
-    public static final String CURRENT_BINDING_VERSION = "v3.3.0.04";
+    public static final String CURRENT_BINDING_VERSION = "v3.4.0.01";
 
     /**
      * List of all Thing Type UIDs.
