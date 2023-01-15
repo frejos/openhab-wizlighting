@@ -76,15 +76,32 @@ public enum WizLightingLightMode {
         return sceneId;
     }
 
-    private static final Map<Integer, WizLightingLightMode> LIGHT_MODE_MAP;
+    private static final Map<Integer, WizLightingLightMode> LIGHT_MODE_MAP_BY_ID;
+    private static final Map<String, WizLightingLightMode> LIGHT_MODE_MAP_BY_NAME;
+
     static {
-        LIGHT_MODE_MAP = new HashMap<Integer, WizLightingLightMode>();
+        LIGHT_MODE_MAP_BY_ID = new HashMap<Integer, WizLightingLightMode>();
+        LIGHT_MODE_MAP_BY_NAME = new HashMap<String, WizLightingLightMode>();
+
         for (WizLightingLightMode v : WizLightingLightMode.values()) {
-            LIGHT_MODE_MAP.put(v.sceneId, v);
+            LIGHT_MODE_MAP_BY_ID.put(v.sceneId, v);
+            LIGHT_MODE_MAP_BY_NAME.put(v.colorModeName.toLowerCase().replaceAll("\\W+", ""), v);
         }
     }
 
-    public static WizLightingLightMode getNameFromModeId(int id) {
-        return LIGHT_MODE_MAP.get(id);
+    public static WizLightingLightMode fromSceneId(int id) {
+        WizLightingLightMode r = null;
+        if (id > 0 && id < 33) {
+            r = LIGHT_MODE_MAP_BY_ID.get(id);
+        }
+        return r;
+    }
+
+    public static WizLightingLightMode fromSceneName(String name) {
+        WizLightingLightMode r = null;
+        if (name != null && !"".equals(name)) {
+            r = LIGHT_MODE_MAP_BY_NAME.get(name.toLowerCase().replaceAll("\\W+", ""));
+        }
+        return r;
     }
 }

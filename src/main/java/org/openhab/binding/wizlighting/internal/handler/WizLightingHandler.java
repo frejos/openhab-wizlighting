@@ -107,12 +107,13 @@ public class WizLightingHandler extends BaseThingHandler {
     public void handleCommand(final ChannelUID channelUID, final Command command) {
         if (hasConfigurationError() || disposed || !fullyInitialized) {
             logger.trace(
-                    "WiZ handler for blub {} received command {} on channel {} but is not yet prepared to handle it.",
-                    config.bulbMacAddress, command, channelUID);
+                    "[{}] WiZ handler for blub {} received command {} on channel {} but is not yet prepared to handle it.",
+                    config.bulbIpAddress, config.bulbMacAddress, command, channelUID);
             return;
         }
 
-        logger.trace("Received command on channel {}: {}", channelUID, command.toFullString());
+        logger.trace("[{}] Received command on channel {}: {}", config.bulbIpAddress, channelUID,
+                command.toFullString());
 
         if (command instanceof RefreshType) {
             long now = System.currentTimeMillis();
@@ -165,9 +166,7 @@ public class WizLightingHandler extends BaseThingHandler {
                 break;
 
             case CHANNEL_LIGHT_MODE:
-                logger.trace("Setting bulb light mode.");
-                mostRecentState.sceneId = Integer.parseInt(command.toString());
-                setPilotCommand(new SceneRequestParam(Integer.parseInt(command.toString())));
+                handleLightModeCommand(command);
                 break;
 
             case CHANNEL_DYNAMIC_SPEED:
@@ -196,32 +195,63 @@ public class WizLightingHandler extends BaseThingHandler {
         super.handleRemoval();
     }
 
+    private void handleLightModeCommand(Command command) {
+        String commandAsString = command.toString();
+        logger.trace("[{}] Setting light mode to: {}.", config.bulbIpAddress, commandAsString);
+
+        Integer commandAsInt = Integer.MIN_VALUE;
+        WizLightingLightMode commandAsLightMode = null;
+
+        logger.trace("[{}] Looking for a matching light mode.", config.bulbIpAddress);
+        try {
+            commandAsInt = Integer.parseInt(commandAsString);
+        } catch (Exception ex) {
+        }
+
+        if (commandAsInt > 0) {
+            commandAsLightMode = WizLightingLightMode.fromSceneId(commandAsInt);
+        }
+
+        if (commandAsLightMode == null) {
+            commandAsLightMode = WizLightingLightMode.fromSceneName(commandAsString);
+        }
+
+        if (commandAsLightMode != null) {
+            logger.trace("[{}] Light mode found, setting bulb scene to: {}", config.bulbIpAddress,
+                    commandAsLightMode.getSceneId());
+            mostRecentState.sceneId = commandAsLightMode.getSceneId();
+            setPilotCommand(new SceneRequestParam(commandAsLightMode.getSceneId()));
+        } else {
+            logger.warn("[{}] Command [{}] not a recognized Light Mode!", config.bulbIpAddress);
+        }
+    }
+
     private void handleHSBCommand(HSBType hsb) {
-        logger.trace("Setting bulb color to HSB: {}.", hsb.toString());
+        logger.trace("[{}] Setting bulb color to HSB: {}.", config.bulbIpAddress, hsb.toString());
         if (hsb.getBrightness().intValue() == 0) {
-            logger.trace("Zero intensity requested, turning bulb off.");
+            logger.trace("[{}] Zero intensity requested, turning bulb off.", config.bulbIpAddress);
             setPilotCommand(new StateRequestParam(false));
         } else {
-            logger.trace("Setting bulb color to {}.", hsb.toString());
+            logger.trace("[{}] Setting bulb color to {}.", config.bulbIpAddress, hsb.toString());
             setPilotCommand(new ColorRequestParam(hsb));
         }
         mostRecentState.setHSBColor(hsb);
     }
 
     private void handlePercentCommand(PercentType brightness) {
-        logger.trace("Setting bulb brightness.");
+        logger.trace("[{}] Setting bulb brightness.", config.bulbIpAddress);
         if (brightness.equals(PercentType.ZERO)) {
-            logger.trace("Zero brightness requested, turning bulb off.");
+            logger.trace("[{}] Zero brightness requested, turning bulb off.", config.bulbIpAddress);
             setPilotCommand(new StateRequestParam(false));
         } else {
-            logger.trace("Setting bulb brightness to {}%.", brightness.toString());
+            logger.trace("[{}] Setting bulb brightness to {}%.", config.bulbIpAddress, brightness.toString());
             setPilotCommand(new DimmingRequestParam(brightness.intValue()));
         }
         mostRecentState.dimming = brightness.intValue();
     }
 
     private void handleOnOffCommand(OnOffType onOff) {
-        logger.trace("Setting bulb state to {}.", onOff.toString());
+        logger.trace("[{}] Setting bulb state to {}.", config.bulbIpAddress, onOff.toString());
         setPilotCommand(new StateRequestParam(onOff == OnOffType.ON ? true : false));
         mostRecentState.state = onOff == OnOffType.ON;
     }
@@ -234,12 +264,12 @@ public class WizLightingHandler extends BaseThingHandler {
         } else {
             newDimming = Math.max(10, oldDimming - 5);
         }
-        logger.trace("Changing bulb brightness from {}% to {}%.", oldDimming, newDimming);
+        logger.trace("[{}] Changing bulb brightness from {}% to {}%.", config.bulbIpAddress, oldDimming, newDimming);
         handlePercentCommand(new PercentType(newDimming));
     }
 
     private void handleTemperatureCommand(PercentType temperature) {
-        logger.trace("Setting bulb color temperature to {}%.", temperature.toString());
+        logger.trace("[{}] Setting bulb color temperature to {}%.", config.bulbIpAddress, temperature.toString());
         setPilotCommand(new ColorTemperatureRequestParam(temperature));
         mostRecentState.setTemperaturePercent(temperature);
     }
@@ -252,15 +282,15 @@ public class WizLightingHandler extends BaseThingHandler {
         } else {
             newTempPct = Math.max(0, oldTempPct - 5);
         }
-        logger.trace("Changing color temperature from {}% to {}%.", oldTempPct, newTempPct);
+        logger.trace("[{}] Changing color temperature from {}% to {}%.", config.bulbIpAddress, oldTempPct, newTempPct);
         handleTemperatureCommand(new PercentType(newTempPct));
     }
 
     private void handleSpeedCommand(PercentType speed) {
-        logger.trace("Setting speed of dynamic light mode.");
+        logger.trace("[{}] Setting speed of dynamic light mode.", config.bulbIpAddress);
         // NOTE: We cannot set the speed without also setting the scene
         int currentScene = mostRecentState.sceneId;
-        logger.trace("Adjusting the speed of scene {}", currentScene);
+        logger.trace("[{}] Adjusting the speed of scene {}", config.bulbIpAddress, currentScene);
         setPilotCommand(new SpeedRequestParam(currentScene, speed.intValue()));
         mostRecentState.speed = speed.intValue();
     }
@@ -273,7 +303,8 @@ public class WizLightingHandler extends BaseThingHandler {
         } else {
             newSpeed = Math.max(10, oldSpeed - 5);
         }
-        logger.trace("Changing dynamic light mode speed from {}% to {}%.", oldSpeed, newSpeed);
+        logger.trace("[{}] Changing dynamic light mode speed from {}% to {}%.", config.bulbIpAddress, oldSpeed,
+                newSpeed);
         handleTemperatureCommand(new PercentType(newSpeed));
     }
 
@@ -295,15 +326,15 @@ public class WizLightingHandler extends BaseThingHandler {
             // If the bulb has an online status, check if we it's been too long since the
             // last response and re-set offline accordingly
             if (getThing().getStatus() == ThingStatus.ONLINE) {
-                logger.trace("MAC address: {}  Latest Update: {} Now: {} Delta: {} seconds", config.bulbMacAddress,
-                        latestUpdate, now, timePassedFromLastUpdateInSeconds);
+                logger.trace("[{}] MAC address: {}  Latest Update: {} Now: {} Delta: {} seconds", config.bulbIpAddress,
+                        config.bulbMacAddress, latestUpdate, now, timePassedFromLastUpdateInSeconds);
 
                 boolean considerThingOffline = (latestUpdate < 0)
                         || (timePassedFromLastUpdateInSeconds > MARK_OFFLINE_AFTER_SEC);
                 if (considerThingOffline) {
                     logger.debug(
-                            "Since no updates have been received from mac address {} in {} seconds, setting its status to OFFLINE and discontinuing polling.",
-                            config.bulbMacAddress, MARK_OFFLINE_AFTER_SEC);
+                            "[{}] Since no updates have been received from mac address {} in {} seconds, setting its status to OFFLINE and discontinuing polling.",
+                            config.bulbIpAddress, config.bulbMacAddress, MARK_OFFLINE_AFTER_SEC);
                     updateStatus(ThingStatus.OFFLINE);
 
                 }
@@ -314,11 +345,11 @@ public class WizLightingHandler extends BaseThingHandler {
                 if (config.useHeartBeats) {
                     // If we're using 5s heart-beats, we must re-register every 30s to maintain
                     // connection
-                    logger.debug("Re-registering for heart-beats from bulb at {}.", config.bulbIpAddress);
+                    logger.debug("[{}] Re-registering for heart-beats.", config.bulbIpAddress);
                     registerWithBulb();
                 } else {
                     // If we're not using heart-beats, just request the current status
-                    logger.debug("Polling for status from bulb at {} - {}.", config.bulbIpAddress,
+                    logger.debug("[{}] Polling for status from bulb at {}.", config.bulbIpAddress,
                             config.bulbMacAddress);
                     getPilot();
                 }
@@ -326,7 +357,7 @@ public class WizLightingHandler extends BaseThingHandler {
                 // Else if we are offline, but it's been a while, re-check if the bulb re-appeared
             } else if (timePassedFromLastRefreshInSeconds > config.reconnectInterval * 60) {
                 // Request the current status
-                logger.debug("Checking for reappearance of offline bulb at {} - {}.", config.bulbIpAddress,
+                logger.debug("[{}] Checking for reappearance of offline bulb at {}.", config.bulbIpAddress,
                         config.bulbMacAddress);
                 latestOfflineRefresh = now;
                 getPilot();
@@ -340,15 +371,15 @@ public class WizLightingHandler extends BaseThingHandler {
          * - every config.updateInterval for other online bulbs
          */
         long updateIntervalInUse = config.useHeartBeats ? 30 : config.updateInterval;
-        logger.debug("Scheduling reoccuring keep alive for every {} seconds for bulb at {} - {}.", updateIntervalInUse,
-                config.bulbIpAddress, config.bulbMacAddress);
+        logger.debug("[{}] Scheduling reoccuring keep alive for every {} seconds for bulb at {}.", config.bulbIpAddress,
+                updateIntervalInUse, config.bulbMacAddress);
         this.keepAliveJob = scheduler.scheduleWithFixedDelay(runnable, 1, updateIntervalInUse, TimeUnit.SECONDS);
     }
 
     @Override
     public void initialize() {
         this.config = getConfigAs(WizLightingDeviceConfiguration.class);
-        logger.trace("Beginning initialization for bulb at {} - {}", config.bulbIpAddress, config.bulbMacAddress);
+        logger.trace("[{}] Beginning initialization for bulb at {}", config.bulbIpAddress, config.bulbMacAddress);
         fullyInitialized = false;
         disposed = false;
 
@@ -367,7 +398,7 @@ public class WizLightingHandler extends BaseThingHandler {
         updateBulbProperties();
         initGetStatusAndKeepAliveThread();
         fullyInitialized = true;
-        logger.debug("Finished initialization for bulb at {} - {}", config.bulbIpAddress, config.bulbMacAddress);
+        logger.debug("[{}] Finished initialization for bulb at {}", config.bulbIpAddress, config.bulbMacAddress);
     }
 
     @Override
@@ -380,11 +411,11 @@ public class WizLightingHandler extends BaseThingHandler {
             keepAliveJob.cancel(true);
             this.keepAliveJob = null;
         }
-        logger.trace("Handler for bulb at {} - {} disposed.", config.bulbIpAddress, config.bulbMacAddress);
+        logger.trace("[{}] Handler for bulb at {} disposed.", config.bulbIpAddress, config.bulbMacAddress);
     }
 
     private synchronized void getPilot() {
-        logger.trace("Requesting current state from bulb.");
+        logger.trace("[{}] Requesting current state from bulb.", config.bulbIpAddress);
         WizLightingResponse response = sendRequestPacket(WizLightingMethodType.GetPilot, null);
         if (response != null) {
             WizLightingSyncState rParam = response.getSyncState();
@@ -392,10 +423,10 @@ public class WizLightingHandler extends BaseThingHandler {
                 updateTimestamps();
                 updateStatesFromParams(rParam);
             } else {
-                logger.trace("No parameters in getPilot response!");
+                logger.trace("[{}] No parameters in getPilot response!", config.bulbIpAddress);
             }
         } else {
-            logger.trace("No response from getPilot request!");
+            logger.trace("[{}] No response from getPilot request!", config.bulbIpAddress);
         }
     }
 
@@ -464,7 +495,7 @@ public class WizLightingHandler extends BaseThingHandler {
         }
 
         if (!receivedParam.state) {
-            logger.trace("Light is off");
+            logger.trace("[{}] Light is off", config.bulbIpAddress);
             updateState(CHANNEL_COLOR, HSBType.BLACK);
             updateState(CHANNEL_DIMMING, PercentType.ZERO);
             updateState(CHANNEL_TEMPERATURE, PercentType.ZERO);
@@ -474,16 +505,17 @@ public class WizLightingHandler extends BaseThingHandler {
             updateState(CHANNEL_SWITCH_STATE, OnOffType.ON);
             switch (receivedParam.getColorMode()) {
                 case RGBMode:
-                    logger.trace("Received color values - R: {} G: {} B: {} W: {} C: {} Dimming: {}", receivedParam.r,
-                            receivedParam.g, receivedParam.b, receivedParam.w, receivedParam.c, receivedParam.dimming);
-                    logger.trace("Translated to HSBValues {}", receivedParam.getHSBColor());
+                    logger.trace("[{}] Received color values - R: {} G: {} B: {} W: {} C: {} Dimming: {}",
+                            config.bulbIpAddress, receivedParam.r, receivedParam.g, receivedParam.b, receivedParam.w,
+                            receivedParam.c, receivedParam.dimming);
+                    logger.trace("[{}] Translated to HSBValues {}", config.bulbIpAddress, receivedParam.getHSBColor());
 
                     updateState(CHANNEL_COLOR, receivedParam.getHSBColor());
                     updateState(CHANNEL_TEMPERATURE, new PercentType(50));
                     break;
                 case CTMode:
                     // update color temperature channel
-                    logger.trace("Received color temperature: {} ({}%)", receivedParam.temp,
+                    logger.trace("[{}] Received color temperature: {} ({}%)", config.bulbIpAddress, receivedParam.temp,
                             receivedParam.getTemperaturePercent());
 
                     updateState(CHANNEL_COLOR, new HSBType(new DecimalType(0), new PercentType(0),
@@ -499,12 +531,12 @@ public class WizLightingHandler extends BaseThingHandler {
         }
 
         // update scene channel
-        logger.trace("Received scene: {} ({})", receivedParam.sceneId,
-                WizLightingLightMode.getNameFromModeId(receivedParam.sceneId));
+        logger.trace("[{}] Received scene: {} ({})", config.bulbIpAddress, receivedParam.sceneId,
+                WizLightingLightMode.fromSceneId(receivedParam.sceneId));
         updateState(CHANNEL_LIGHT_MODE, new StringType(String.valueOf(receivedParam.sceneId)));
 
         // update speed channel
-        logger.trace("Received scene speed: {}", receivedParam.speed);
+        logger.trace("[{}] Received scene speed: {}", config.bulbIpAddress, receivedParam.speed);
         updateState(CHANNEL_DYNAMIC_SPEED, new PercentType(receivedParam.speed));
 
         // update signal strength
@@ -521,7 +553,8 @@ public class WizLightingHandler extends BaseThingHandler {
             } else {
                 strength = 4;
             }
-            logger.trace("Received RSSI: {}, Signal Strength: {}", receivedParam.rssi, strength);
+            logger.trace("[{}] Received RSSI: {}, Signal Strength: {}", config.bulbIpAddress, receivedParam.rssi,
+                    strength);
             updateState(CHANNEL_RSSI, new DecimalType(strength));
         }
     }
@@ -553,7 +586,8 @@ public class WizLightingHandler extends BaseThingHandler {
                 dsocket.setBroadcast(true);
                 dsocket.setSoTimeout(500); // Timeout in 500ms
                 dsocket.send(packet);
-                logger.debug("Sent packet to address: {} and port {}", address, DEFAULT_BULB_UDP_PORT);
+                logger.debug("[{}] Sent packet to address: {} and port {}", config.bulbIpAddress, address,
+                        DEFAULT_BULB_UDP_PORT);
 
                 byte[] responseMessage = new byte[1024];
                 packet = new DatagramPacket(responseMessage, responseMessage.length);
@@ -562,10 +596,10 @@ public class WizLightingHandler extends BaseThingHandler {
                 return converter.transformResponsePacket(packet);
             }
         } catch (SocketTimeoutException e) {
-            logger.trace("Socket timeout after sending command; no response from {} - {} within 500ms",
+            logger.trace("[{}] Socket timeout after sending command; no response from {} within 500ms",
                     config.bulbIpAddress, config.bulbMacAddress);
         } catch (IOException exception) {
-            logger.debug("Something wrong happened when sending the packet to address: {} and port {}... msg: {}",
+            logger.debug("[{}] Something wrong happened when sending the packet to port {}... msg: {}",
                     config.bulbIpAddress, DEFAULT_BULB_UDP_PORT, exception.getMessage());
         } finally {
             if (dsocket != null) {
@@ -612,7 +646,7 @@ public class WizLightingHandler extends BaseThingHandler {
         if (hasConfigurationError() || disposed) {
             return;
         }
-        logger.trace("Updating metadata for bulb at {}", config.bulbMacAddress);
+        logger.trace("[{}] Updating metadata for bulb at {}", config.bulbIpAddress, config.bulbMacAddress);
         WizLightingResponse registrationResponse = sendRequestPacket(WizLightingMethodType.GetSystemConfig, null);
         if (registrationResponse != null) {
             SystemConfigResult responseResult = registrationResponse.getSystemConfigResults();
@@ -635,12 +669,12 @@ public class WizLightingHandler extends BaseThingHandler {
                 updateTimestamps();
             } else {
                 logger.debug(
-                        "Received response to getConfigRequest from bulb at {} - {}, but id did not contain bulb configuration information.",
+                        "[{}] Received response to getConfigRequest from bulb at {}, but id did not contain bulb configuration information.",
                         config.bulbIpAddress, config.bulbMacAddress);
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
             }
         } else {
-            logger.debug("No response to registration request from bulb at {} - {}", config.bulbIpAddress,
+            logger.debug("[{}] No response to registration request from bulb at {}", config.bulbIpAddress,
                     config.bulbMacAddress);
             // Not calling it "gone" because it's probably just been powered off and will beback any time
             updateStatus(ThingStatus.OFFLINE);
@@ -654,7 +688,7 @@ public class WizLightingHandler extends BaseThingHandler {
      * heart-beats the registration must be re-sent after 30s.
      */
     private synchronized void registerWithBulb() {
-        logger.trace("Registering for updates with bulb at {} - {}", config.bulbIpAddress, config.bulbMacAddress);
+        logger.trace("[{}] Registering for updates with bulb at {}", config.bulbIpAddress, config.bulbMacAddress);
         WizLightingResponse registrationResponse = sendRequestPacket(WizLightingMethodType.Registration,
                 this.registrationInfo);
         if (registrationResponse != null) {
@@ -662,12 +696,12 @@ public class WizLightingHandler extends BaseThingHandler {
                 updateTimestamps();
             } else {
                 logger.debug(
-                        "Received response to getConfigRequest from bulb at {} - {}, but id did not contain bulb configuration information.",
+                        "[{}] Received response to getConfigRequest from bulb at {}, but id did not contain bulb configuration information.",
                         config.bulbIpAddress, config.bulbMacAddress);
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
             }
         } else {
-            logger.debug("No response to registration request from bulb at {} - {}", config.bulbIpAddress,
+            logger.debug("[{}] No response to registration request from bulb at {}", config.bulbIpAddress,
                     config.bulbMacAddress);
             // Not calling it "gone" because it's probably just been powered off and will be
             // back any time
@@ -688,8 +722,9 @@ public class WizLightingHandler extends BaseThingHandler {
         String lastBindingVersion = this.getThing().getProperties().get(PROPERTY_BINDING_VERSION);
         updatedBinding = !CURRENT_BINDING_VERSION.equals(lastBindingVersion);
         if (updatedBinding) {
-            logger.info("WiZ lighting binding has been updated.");
-            logger.info("Current version is {}, prior version was {}.", CURRENT_BINDING_VERSION, lastBindingVersion);
+            logger.info("[{}] WiZ lighting binding has been updated.", config.bulbIpAddress);
+            logger.info("[{}] Current version is {}, prior version was {}.", config.bulbIpAddress,
+                    CURRENT_BINDING_VERSION, lastBindingVersion);
 
             // Update the thing with the new property value
             final Map<String, String> newProperties = new HashMap<>(thing.getProperties());
