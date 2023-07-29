@@ -125,6 +125,13 @@ Color LivingRoom_Light_Color "Living Room Lamp" (gLivingroom) {channel="wizlight
 
 ## Changelog
 
+### Version 4.0.0.02
+- 4.0.0.01 incorrectly reported it's version as 3.4.0.01, this has been fixed and updated to 4.0.0.02
+- Openhab 4.0 compatability tested and confirmed
+
+### Version 4.0.0.01
+- Initial build using 4.0.0 upstream Openhab dependencies, for testing only
+
 ### Version 3.4.0.01
 - Updated to build for 3.4.0 OH dependencies
 - Added ability to send the light mode name to the LightMode channel in addition to the light mode scene id. Most UI components handled this mapping automatically using the metadata, however, in rules it was cumbersome to have to look up the corresponding ids. You man now send the string name to the channel. Names are standardized for case and white space before matching. All of the below are valid in JavaScript rules:
