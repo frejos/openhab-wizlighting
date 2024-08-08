@@ -31,6 +31,7 @@ import org.openhab.binding.wizlighting.internal.config.WizLightingDeviceConfigur
 import org.openhab.binding.wizlighting.internal.entities.ColorRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.ColorTemperatureRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.DimmingRequestParam;
+import org.openhab.binding.wizlighting.internal.entities.FanStateRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.Param;
 import org.openhab.binding.wizlighting.internal.entities.RegistrationRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.SceneRequestParam;
@@ -179,6 +180,18 @@ public class WizLightingHandler extends BaseThingHandler {
                     handleIncreaseDecreaseSpeedCommand(command == IncreaseDecreaseType.INCREASE);
                 }
                 break;
+
+            case CHANNEL_FAN_STATE:
+                if (command instanceof OnOffType) {
+                    handleFanOnOffCommand((OnOffType) command);
+                }
+                break;
+
+            case CHANNEL_FAN_SPEED:
+            case CHANNEL_FAN_MODE:
+            case CHANNEL_FAN_REVERSE:
+                // TODO
+                break;
         }
     }
 
@@ -253,6 +266,12 @@ public class WizLightingHandler extends BaseThingHandler {
     private void handleOnOffCommand(OnOffType onOff) {
         logger.trace("[{}] Setting bulb state to {}.", config.bulbIpAddress, onOff.toString());
         setPilotCommand(new StateRequestParam(onOff == OnOffType.ON ? true : false));
+        mostRecentState.state = onOff == OnOffType.ON;
+    }
+
+    private void handleFanOnOffCommand(OnOffType onOff) {
+        logger.trace("[{}] Setting fan state to {}.", config.bulbIpAddress, onOff.toString());
+        setPilotCommand(new FanStateRequestParam(onOff == OnOffType.ON ? 1 : 0));
         mostRecentState.state = onOff == OnOffType.ON;
     }
 
@@ -557,6 +576,11 @@ public class WizLightingHandler extends BaseThingHandler {
                     strength);
             updateState(CHANNEL_RSSI, new DecimalType(strength));
         }
+
+        updateState(CHANNEL_FAN_STATE, new DecimalType(receivedParam.fanState));
+        updateState(CHANNEL_FAN_SPEED, new DecimalType(receivedParam.fanSpeed));
+        updateState(CHANNEL_FAN_REVERSE, new DecimalType(receivedParam.fanRevrs));
+        updateState(CHANNEL_FAN_MODE, new DecimalType(receivedParam.fanMode));
     }
 
     /**
@@ -619,6 +643,11 @@ public class WizLightingHandler extends BaseThingHandler {
             if (setSucceeded) {
                 // can't process this response it doens't have a syncstate, so request updated state
                 // let the getPilot response update the timestamps
+                try {
+                    // wait for state change to apply
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                }
                 getPilot();
                 return setSucceeded;
             }

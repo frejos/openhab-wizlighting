@@ -1,3 +1,6 @@
 .vscode
+.project
+.classpath
+.settings
 src/main/history
 target

@@ -73,6 +73,17 @@
 		<config-description-ref uri="thing-type:wiz:light"/>
 	</thing-type>
 
+	<!-- WiFi Smart Ceiling Fan Thing Type -->
+	<thing-type id="wizCeilingFan">
+		<label>WiZ Ceiling Fan</label>
+		<description>Supports WiZ Ceiling Fans</description>
+
+		<channels>
+			<channel id="fanState" typeId="system.power"/>
+		</channels>
+		<config-description-ref uri="thing-type:wiz:light"/>
+	</thing-type>
+
 	<!-- Bulb Channel Types -->
 	<channel-type id="lightMode">
 		<item-type>String</item-type>

@@ -18,7 +18,7 @@
   <artifactId>org.openhab.binding.wizlighting</artifactId>
 
   <!-- Version appended to openhab-addons version -->
-  <version>4.0.0.02</version>
+  <version>4.0.0.03-SNAPSHOT</version>
 
   <name>openHAB Add-ons :: Bundles :: WiZ Lighting Binding</name>
 

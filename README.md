@@ -125,6 +125,10 @@ Color LivingRoom_Light_Color "Living Room Lamp" (gLivingroom) {channel="wizlight
 
 ## Changelog
 
+### Version 4.0.0.03
+
+- TODO
+
 ### Version 4.0.0.02
 - 4.0.0.01 incorrectly reported it's version as 3.4.0.01, this has been fixed and updated to 4.0.0.02
 - Openhab 4.0 compatability tested and confirmed
