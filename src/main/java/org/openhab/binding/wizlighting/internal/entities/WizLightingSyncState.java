@@ -15,7 +15,7 @@ package org.openhab.binding.wizlighting.internal.entities;
 import static org.openhab.binding.wizlighting.internal.WizLightingBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.wizlighting.internal.enums.*;
+import org.openhab.binding.wizlighting.internal.enums.WizLightingColorMode;
 import org.openhab.binding.wizlighting.internal.utils.WizColorConverter;
 import org.openhab.core.library.types.HSBType;
 import org.openhab.core.library.types.PercentType;
@@ -94,6 +94,15 @@ public class WizLightingSyncState {
     // Indicates if the light mode is applied following a pre-set "rhythm"
     @Expose(serialize = true, deserialize = true)
     public int schdPsetId;
+
+    @Expose(serialize = true, deserialize = true)
+    public int fanState;
+    @Expose(serialize = true, deserialize = true)
+    public int fanSpeed;
+    @Expose(serialize = true, deserialize = true)
+    public int fanMode;
+    @Expose(serialize = true, deserialize = true)
+    public int fanRevrs;
 
     public WizLightingColorMode getColorMode() {
         if (r != 0 || g != 0 || b != 0) {

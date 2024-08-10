@@ -33,7 +33,7 @@ public class WizLightingBindingConstants {
      * The binding id.
      */
     public static final String BINDING_ID = "wizlighting";
-    public static final String CURRENT_BINDING_VERSION = "v4.0.0.02";
+    public static final String CURRENT_BINDING_VERSION = "v4.0.0.03";
 
     /**
      * List of all Thing Type UIDs.
@@ -42,12 +42,14 @@ public class WizLightingBindingConstants {
     public static final ThingTypeUID THING_TYPE_WIZ_TUNABLE_BULB = new ThingTypeUID(BINDING_ID, "wizTunableBulb");
     public static final ThingTypeUID THING_TYPE_WIZ_DIMMABLE_BULB = new ThingTypeUID(BINDING_ID, "wizDimmableBulb");
     public static final ThingTypeUID THING_TYPE_WIZ_SMART_PLUG = new ThingTypeUID(BINDING_ID, "wizPlug");
+    public static final ThingTypeUID THING_TYPE_WIZ_CEILING_FAN = new ThingTypeUID(BINDING_ID, "wizCeilingFan");
 
     /**
      * The supported thing types.
      */
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of(THING_TYPE_WIZ_COLOR_BULB,
-            THING_TYPE_WIZ_TUNABLE_BULB, THING_TYPE_WIZ_DIMMABLE_BULB, THING_TYPE_WIZ_SMART_PLUG)
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+            .of(THING_TYPE_WIZ_COLOR_BULB, THING_TYPE_WIZ_TUNABLE_BULB, THING_TYPE_WIZ_DIMMABLE_BULB,
+                    THING_TYPE_WIZ_SMART_PLUG, THING_TYPE_WIZ_CEILING_FAN)
             .collect(Collectors.toSet());
 
     /**
@@ -61,6 +63,10 @@ public class WizLightingBindingConstants {
     public static final String CHANNEL_DYNAMIC_SPEED = "speed";
     public static final String CHANNEL_RSSI = "signalstrength";
     public static final String CHANNEL_LAST_UPDATE = "lastUpdate";
+    public static final String CHANNEL_FAN_STATE = "fanState";
+    public static final String CHANNEL_FAN_SPEED = "fanSpeed";
+    public static final String CHANNEL_FAN_MODE = "fanMode";
+    public static final String CHANNEL_FAN_REVERSE = "fanRevrs";
 
     // -------------- Configuration arguments ----------------
     /**

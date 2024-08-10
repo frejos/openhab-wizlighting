@@ -193,6 +193,13 @@ public class WizLightingDiscoveryService extends AbstractDiscoveryService {
                     logger.trace("New bulb appears to be a tunable white bulb and will be given the UUID: {}",
                             newThingId);
 
+                    // Check for "FANDIMS" as in confirmed example ESP03_FANDIMS_31 for Faro Barcelona Smart Fan
+                } else if (discoveredModel.contains("FANDIMS")) {
+                    thisBulbType = THING_TYPE_WIZ_CEILING_FAN;
+                    thisBulbLabel = "WiZ Smart Fan at " + lightIpAddress;
+                    newThingId = new ThingUID(thisBulbType, lightMacAddress);
+                    logger.trace("New device appears to be a smart fan and will be given the UUID: {}", newThingId);
+
                     // We key off "RGB" for color bulbs
                 } else if (!discoveredModel.contains("RGB")) {
                     thisBulbType = THING_TYPE_WIZ_DIMMABLE_BULB;
