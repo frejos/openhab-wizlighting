@@ -85,6 +85,8 @@
 			<!-- fan channels -->
 			<channel id="fanState" typeId="system.power"/>
 			<channel id="fanMode" typeId="fanMode"/>
+			<channel id="fanSpeed" typeId="fanSpeed"/>
+			<channel id="fanRevrs" typeId="fanRevrs"/>
 			<!-- status channels -->
 			<channel id="signalstrength" typeId="system.signal-strength"/>
 			<channel id="lastUpdate" typeId="lastUpdate"/>
@@ -137,6 +139,15 @@
 		</state>
 	</channel-type>
 
+	<channel-type id="speed">
+		<item-type>Dimmer</item-type>
+		<label>Dynamic Light Mode Speed</label>
+		<description>Speed of color/intensity changes in dynamic light modes</description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
+
 	<channel-type id="fanMode">
 		<item-type>String</item-type>
 		<label>Fan Mode</label>
@@ -151,10 +162,20 @@
 		</state>
 	</channel-type>
 
-	<channel-type id="speed">
-		<item-type>Dimmer</item-type>
-		<label>Dynamic Light Mode Speed</label>
-		<description>Speed of color/intensity changes in dynamic light modes</description>
+	<channel-type id="fanSpeed">
+		<item-type>Number</item-type>
+		<label>Fan Speed</label>
+		<description>Fan speed</description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+		<state min="1" step="1" readOnly="false"></state>
+	</channel-type>
+
+	<channel-type id="fanRevrs">
+		<item-type>Switch</item-type>
+		<label>Fan Reverse</label>
+		<description>Fan direction for switching to winter mode</description>
 		<tags>
 			<tag>Lighting</tag>
 		</tags>

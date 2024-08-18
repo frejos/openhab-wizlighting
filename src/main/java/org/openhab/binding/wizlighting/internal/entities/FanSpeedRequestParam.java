@@ -17,32 +17,31 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import com.google.gson.annotations.Expose;
 
 /**
- * This POJO represents one Fan Mode Request Param
+ * This POJO represents Fan Speed Request Param
  *
  * The outgoing JSON should look like this:
  *
- * {"id": 22, "method": "setPilot", "params": {"fanMode": 2}}
+ * {"id": 23, "method": "setPilot", "params": {"fanState": 1,"fanSpeed": 3}}
  *
  * extends {@link FanStateRequestParam} to always set {@code fanState}, similar to {@link DimmingRequestParam} and usual
  * fan remote behavior
- *
- * @see org.openhab.binding.wizlighting.internal.enums.WizLightingFanMode
  */
 @NonNullByDefault
-public class FanModeRequestParam extends FanStateRequestParam {
+public class FanSpeedRequestParam extends FanStateRequestParam {
+
     @Expose(serialize = true, deserialize = true)
-    private int fanMode;
+    private int fanSpeed; // min 1
 
-    public FanModeRequestParam(int sceneId) {
-        super(1);
-        this.fanMode = sceneId;
+    public FanSpeedRequestParam(int fanSpeed) {
+        super(1); // fanState = 1
+        this.fanSpeed = fanSpeed;
     }
 
-    public int getFanMode() {
-        return fanMode;
+    public int getFanSpeed() {
+        return fanSpeed;
     }
 
-    public void setFanMode(int fanMode) {
-        this.fanMode = fanMode;
+    public void setFanSpeed(int fanSpeed) {
+        this.fanSpeed = fanSpeed;
     }
 }
