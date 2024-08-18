@@ -317,9 +317,10 @@ public class WizLightingHandler extends BaseThingHandler {
     }
 
     private void handleFanOnOffCommand(OnOffType onOff) {
-        logger.trace("[{}] Setting fan state to {}.", config.bulbIpAddress, onOff.toString());
-        setPilotCommand(new FanStateRequestParam(onOff == OnOffType.ON ? 1 : 0));
-        mostRecentState.state = onOff == OnOffType.ON;
+        int fanState = onOff == OnOffType.ON ? 1 : 0;
+        logger.trace("[{}] Setting fan state to {}.", config.bulbIpAddress, fanState);
+        setPilotCommand(new FanStateRequestParam(fanState));
+        mostRecentState.fanState = fanState;
     }
 
     private void handleFanReverseOnOffCommand(OnOffType onOff) {
