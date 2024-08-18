@@ -79,7 +79,15 @@
 		<description>Supports WiZ Ceiling Fans</description>
 
 		<channels>
+			<!-- light channels -->
+			<channel id="dimming" typeId="system.brightness"/>
+			<channel id="state" typeId="system.power"/>
+			<!-- fan channels -->
 			<channel id="fanState" typeId="system.power"/>
+			<channel id="fanMode" typeId="fanMode"/>
+			<!-- status channels -->
+			<channel id="signalstrength" typeId="system.signal-strength"/>
+			<channel id="lastUpdate" typeId="lastUpdate"/>
 		</channels>
 		<config-description-ref uri="thing-type:wiz:light"/>
 	</thing-type>
@@ -125,6 +133,20 @@
 				<option value="30">Golden White</option>
 				<option value="31">Pulse</option>
 				<option value="32">Steampunk</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="fanMode">
+		<item-type>String</item-type>
+		<label>Fan Mode</label>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+		<state pattern="String" readOnly="false">
+			<options>
+				<option value="1">Standard</option>
+				<option value="2">Breeze</option>
 			</options>
 		</state>
 	</channel-type>

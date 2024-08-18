@@ -31,6 +31,7 @@ import org.openhab.binding.wizlighting.internal.config.WizLightingDeviceConfigur
 import org.openhab.binding.wizlighting.internal.entities.ColorRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.ColorTemperatureRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.DimmingRequestParam;
+import org.openhab.binding.wizlighting.internal.entities.FanModeRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.FanStateRequestParam;
 import org.openhab.binding.wizlighting.internal.entities.Param;
 import org.openhab.binding.wizlighting.internal.entities.RegistrationRequestParam;
@@ -41,6 +42,7 @@ import org.openhab.binding.wizlighting.internal.entities.SystemConfigResult;
 import org.openhab.binding.wizlighting.internal.entities.WizLightingRequest;
 import org.openhab.binding.wizlighting.internal.entities.WizLightingResponse;
 import org.openhab.binding.wizlighting.internal.entities.WizLightingSyncState;
+import org.openhab.binding.wizlighting.internal.enums.WizLightingFanMode;
 import org.openhab.binding.wizlighting.internal.enums.WizLightingLightMode;
 import org.openhab.binding.wizlighting.internal.enums.WizLightingMethodType;
 import org.openhab.binding.wizlighting.internal.utils.ValidationUtils;
@@ -187,8 +189,11 @@ public class WizLightingHandler extends BaseThingHandler {
                 }
                 break;
 
-            case CHANNEL_FAN_SPEED:
             case CHANNEL_FAN_MODE:
+                handleFanModeCommand(command);
+                break;
+
+            case CHANNEL_FAN_SPEED:
             case CHANNEL_FAN_REVERSE:
                 // TODO
                 break;
@@ -236,6 +241,37 @@ public class WizLightingHandler extends BaseThingHandler {
             setPilotCommand(new SceneRequestParam(commandAsLightMode.getSceneId()));
         } else {
             logger.warn("[{}] Command [{}] not a recognized Light Mode!", config.bulbIpAddress);
+        }
+    }
+
+    private void handleFanModeCommand(Command command) {
+        String commandAsString = command.toString();
+        logger.trace("[{}] Setting fan mode to: {}.", config.bulbIpAddress, commandAsString);
+
+        Integer commandAsInt = Integer.MIN_VALUE;
+        WizLightingFanMode commandAsFanMode = null;
+
+        logger.trace("[{}] Looking for a matching fan mode.", config.bulbIpAddress);
+        try {
+            commandAsInt = Integer.parseInt(commandAsString);
+        } catch (Exception ex) {
+        }
+
+        if (commandAsInt > 0) {
+            commandAsFanMode = WizLightingFanMode.fromModeId(commandAsInt);
+        }
+
+        if (commandAsFanMode == null) {
+            commandAsFanMode = WizLightingFanMode.fromModeName(commandAsString);
+        }
+
+        if (commandAsFanMode != null) {
+            logger.trace("[{}] Fan mode found, setting fan mode to: {}", config.bulbIpAddress,
+                    commandAsFanMode.getModeId());
+            mostRecentState.fanMode = commandAsFanMode.getModeId();
+            setPilotCommand(new FanModeRequestParam(commandAsFanMode.getModeId()));
+        } else {
+            logger.warn("[{}] Command [{}] not a recognized Fan Mode!", config.bulbIpAddress);
         }
     }
 
@@ -577,10 +613,22 @@ public class WizLightingHandler extends BaseThingHandler {
             updateState(CHANNEL_RSSI, new DecimalType(strength));
         }
 
+        // update fan state channel
+        logger.trace("[{}] Received fan state: {}", config.bulbIpAddress, receivedParam.fanState);
         updateState(CHANNEL_FAN_STATE, new DecimalType(receivedParam.fanState));
+
+        // update fan mode channel
+        logger.trace("[{}] Received fan mode: {} ({})", config.bulbIpAddress, receivedParam.fanMode,
+                WizLightingFanMode.fromModeId(receivedParam.fanMode));
+        updateState(CHANNEL_FAN_MODE, new StringType(String.valueOf(receivedParam.sceneId)));
+
+        // update fan speed channel
+        logger.trace("[{}] Received fan speed: {}", config.bulbIpAddress, receivedParam.fanSpeed);
         updateState(CHANNEL_FAN_SPEED, new DecimalType(receivedParam.fanSpeed));
+
+        // update fan revrs channel
+        logger.trace("[{}] Received fan reverse: {}", config.bulbIpAddress, receivedParam.fanRevrs);
         updateState(CHANNEL_FAN_REVERSE, new DecimalType(receivedParam.fanRevrs));
-        updateState(CHANNEL_FAN_MODE, new DecimalType(receivedParam.fanMode));
     }
 
     /**
