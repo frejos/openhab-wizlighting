@@ -380,7 +380,7 @@ public class WizLightingHandler extends BaseThingHandler {
         }
         logger.trace("[{}] Changing dynamic light mode speed from {}% to {}%.", config.bulbIpAddress, oldSpeed,
                 newSpeed);
-        handleTemperatureCommand(new PercentType(newSpeed));
+        handleSpeedCommand(new PercentType(newSpeed));
     }
 
     private void handleFanSpeedCommand(DecimalType command) {
