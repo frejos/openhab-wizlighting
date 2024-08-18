@@ -79,7 +79,17 @@
 		<description>Supports WiZ Ceiling Fans</description>
 
 		<channels>
+			<!-- light channels -->
+			<channel id="dimming" typeId="system.brightness"/>
+			<channel id="state" typeId="system.power"/>
+			<!-- fan channels -->
 			<channel id="fanState" typeId="system.power"/>
+			<channel id="fanMode" typeId="fanMode"/>
+			<channel id="fanSpeed" typeId="fanSpeed"/>
+			<channel id="fanRevrs" typeId="fanRevrs"/>
+			<!-- status channels -->
+			<channel id="signalstrength" typeId="system.signal-strength"/>
+			<channel id="lastUpdate" typeId="lastUpdate"/>
 		</channels>
 		<config-description-ref uri="thing-type:wiz:light"/>
 	</thing-type>
@@ -133,6 +143,39 @@
 		<item-type>Dimmer</item-type>
 		<label>Dynamic Light Mode Speed</label>
 		<description>Speed of color/intensity changes in dynamic light modes</description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="fanMode">
+		<item-type>String</item-type>
+		<label>Fan Mode</label>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+		<state pattern="String" readOnly="false">
+			<options>
+				<option value="1">Standard</option>
+				<option value="2">Breeze</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="fanSpeed">
+		<item-type>Number</item-type>
+		<label>Fan Speed</label>
+		<description>Fan speed</description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+		<state min="1" step="1" readOnly="false"></state>
+	</channel-type>
+
+	<channel-type id="fanRevrs">
+		<item-type>Switch</item-type>
+		<label>Fan Reverse</label>
+		<description>Fan direction for switching to winter mode</description>
 		<tags>
 			<tag>Lighting</tag>
 		</tags>
